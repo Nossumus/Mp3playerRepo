@@ -30,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
     private Button stopButton;
     private Button pauseButton;
+    private Button resumeButton;
     ArrayList<String> arrayList;
     ListView listView;
     ArrayAdapter<String> adapter;
@@ -51,12 +52,13 @@ public class MainActivity extends AppCompatActivity {
 
                 String list = (adapterView.getItemAtPosition(position).toString());
                 String location = list.substring(list.indexOf("/"));
-                TextView textView = findViewById(R.id.textView);
-                textView.setText(location);
+              //  TextView textView = findViewById(R.id.textView);
+                // textView.setText(location);
 
 
                 final MediaPlayer mediaPlayer = new MediaPlayer();
                 mediaPlayer.stop();
+
                 //mediaPlayer.reset();
                 mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
@@ -65,6 +67,7 @@ public class MainActivity extends AppCompatActivity {
 
                    // mediaPlayer.release();
                     mediaPlayer.setDataSource(location);
+
 
                 } catch (IOException e) {
 
@@ -86,11 +89,27 @@ public class MainActivity extends AppCompatActivity {
                     public void onClick(View view) {
                         mediaPlayer.stop();
                         mediaPlayer.reset();
-                        mediaPlayer.release();
+                       // mediaPlayer.release();
                     }
 
 
                 });
+
+                pauseButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        mediaPlayer.pause();
+                    }
+                });
+
+                resumeButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mediaPlayer.start();
+                    }
+                });
+
 
 
 
@@ -138,6 +157,8 @@ public class MainActivity extends AppCompatActivity {
 
         listView = (ListView) findViewById(R.id.listView);
         stopButton = (Button) findViewById(R.id.stopButton);
+        pauseButton = (Button) findViewById(R.id.pauseButton);
+        resumeButton = (Button) findViewById(R.id.resumeButton);
         doStuff();
 
 
