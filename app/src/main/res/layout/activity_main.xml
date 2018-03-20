@@ -26,29 +26,25 @@
         android:layout_alignParentStart="true"
         android:layout_marginBottom="32dp" />
 
-    <Button
+    <ImageButton
         android:id="@+id/stopButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_centerHorizontal="true"
-        android:text="Stop" />
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/stop"
+        android:src="@drawable/stop" />
 
-    <Button
+    <ImageButton
         android:id="@+id/pauseButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/seekBar"
+        android:layout_marginEnd="17dp"
         android:layout_toStartOf="@+id/stopButton"
-        android:text="Pause" />
-
-    <Button
-        android:id="@+id/resumeButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/stopButton"
-        android:layout_toEndOf="@+id/stopButton"
-        android:text="Resume" />
+        android:background="@color/colorPrimaryDark"
+        />
 
 
 </RelativeLayout>

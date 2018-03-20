@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#819eef</color> <!--kolor paska głównego-->
-    <color name="colorPrimaryDark">#819eef</color> <!--kolor paska górnego, bateria itd-->
+    <color name="colorPrimary">#FF00</color> <!--kolor paska głównego-->
+    <color name="colorPrimaryDark">#819eef</color> <!--kolor paska górnego, bateria itd, #819eef niebieski-->
     <color name="colorAccent">#FF00</color> <!--kolor przycisku + -->
     <color name="textColor">#FFFF</color>
 </resources>

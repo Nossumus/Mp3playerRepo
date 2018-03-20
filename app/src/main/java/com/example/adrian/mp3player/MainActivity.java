@@ -5,36 +5,35 @@ import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
 
-
-    //comment
-    //some changes
-    //some more changes
-    //new comment to see if Kraken will see the difference
-    
-
-
-    private Button stopButton;
-    private Button pauseButton;
-    private Button resumeButton;
+    private ImageButton stopButton;
+    private ImageButton pauseButton;
+    private SeekBar seekBar;
+    String location;
     ArrayList<String> arrayList;
     ListView listView;
     ArrayAdapter<String> adapter;
-
+    int status = 0; //zero means pause view
 
     public void doStuff() {
 
@@ -44,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
         listView.setAdapter(adapter);
 
 
+
+
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
@@ -51,21 +52,22 @@ public class MainActivity extends AppCompatActivity {
 
 
                 String list = (adapterView.getItemAtPosition(position).toString());
-                String location = list.substring(list.indexOf("/"));
-              //  TextView textView = findViewById(R.id.textView);
-                // textView.setText(location);
-
+                location = list.substring(list.indexOf("/"));
 
                 final MediaPlayer mediaPlayer = new MediaPlayer();
-                mediaPlayer.stop();
 
-                //mediaPlayer.reset();
+                
+
+
+
+                if(mediaPlayer.isPlaying()) {
+                    mediaPlayer.stop();
+                }
+
                 mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
                 try {
 
-
-                   // mediaPlayer.release();
                     mediaPlayer.setDataSource(location);
 
 
@@ -83,38 +85,72 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 mediaPlayer.start();
+                pauseButton.setBackgroundResource(R.drawable.pause);
+                if(status==0)
+                {
+                    pauseButton.setBackgroundResource(R.drawable.pause);
+                    status = 1;
+                }
+
+
 
                 stopButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         mediaPlayer.stop();
+                        pauseButton.setBackgroundResource(R.drawable.play);
                         mediaPlayer.reset();
-                       // mediaPlayer.release();
+
+
                     }
 
 
                 });
+
 
                 pauseButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-
-                        mediaPlayer.pause();
-                    }
-                });
-
-                resumeButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        mediaPlayer.start();
-                    }
-                });
+                            @Override
+                            public void onClick(View view) {
 
 
+                                if(mediaPlayer.isPlaying()==true)
+                                {
+                                    mediaPlayer.pause();
 
+                                    if(status==1)
+                                    {
+                                        pauseButton.setBackgroundResource(R.drawable.play);
+                                        status = 0;
+                                    }
+
+
+                                }else {
+                                    mediaPlayer.start();
+
+                                    if(status==0){
+                                        pauseButton.setBackgroundResource(R.drawable.pause);
+                                        status = 1;
+                                    }
+                                }
+
+                            }
+                        });
 
                }
             });
+       // public void playCycle(){
+        //    seekBar.setProgress(mediaPlayer.getCurrentPosition());
+
+         //   if(mediaPlayer.isPlaying()){
+           //     runnable = new Runnable() {
+             //       @Override
+             //       public void run() {
+              //          playCycle();
+            //        }
+             //   };
+           //     handler.postDelayed(runnable, 1000);
+          //  }
+       // }
     }
 
 
@@ -149,36 +185,22 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         listView = (ListView) findViewById(R.id.listView);
-        stopButton = (Button) findViewById(R.id.stopButton);
-        pauseButton = (Button) findViewById(R.id.pauseButton);
-        resumeButton = (Button) findViewById(R.id.resumeButton);
+        stopButton = (ImageButton) findViewById(R.id.stopButton);
+        pauseButton = (ImageButton) findViewById(R.id.pauseButton);
+        //seekBar = (SeekBar) findViewById(R.id.seekBar);
+        if(status==0)
+        {
+            pauseButton.setBackgroundResource(R.drawable.play);
+        }
+
         doStuff();
 
-
-
-
-        //  if (ContextCompat.checkSelfPermission(MainActivity.this,
-        //  Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-
-        // if (ActivityCompat.shouldShowRequestPermissionRationale(MainActivity.this,
-        //  Manifest.permission.READ_EXTERNAL_STORAGE)) {
-        // ActivityCompat.requestPermissions(MainActivity.this,
-        //  new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSION_REQUEST);
-        // } else {
-        // ActivityCompat.requestPermissions(MainActivity.this,
-        //       new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSION_REQUEST);
-        //     }
-        // } else {
-        //   doStuff();
-        // }
-        // }
 
 
 
