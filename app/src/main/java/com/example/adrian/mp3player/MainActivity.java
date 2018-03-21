@@ -25,17 +25,17 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-
+    //declaration section
+    MediaPlayer mediaPlayer = new MediaPlayer();
     private ImageButton stopButton;
-    private ImageButton pauseButton;
+    private ImageButton pausePlayButton;
     private SeekBar seekBar;
     String location;
     ArrayList<String> arrayList;
     ListView listView;
     ArrayAdapter<String> adapter;
-    int status = 0; //zero means pause view
 
-    public void doStuff() {
+    public void CreateAdapter_and_getLocation_also_setupOnClickListener() {
 
         arrayList = new ArrayList<>();
         getMusic();
@@ -46,97 +46,41 @@ public class MainActivity extends AppCompatActivity {
 
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
 
-
-                String list = (adapterView.getItemAtPosition(position).toString());
-                location = list.substring(list.indexOf("/"));
-
-                final MediaPlayer mediaPlayer = new MediaPlayer();
-
-                
-
-
-
                 if(mediaPlayer.isPlaying()) {
                     mediaPlayer.stop();
-                }
+                    mediaPlayer.reset();
+              }
 
-                mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                //getting location of desired file
+                String list = (adapterView.getItemAtPosition(position).toString());
+                location = null;
+                location = list.substring(list.indexOf("/"));
 
+                //setting data source
                 try {
-
                     mediaPlayer.setDataSource(location);
-
-
                 } catch (IOException e) {
-
                     e.printStackTrace();
-
                 }
+                //preparing media player
                 try {
-
                     mediaPlayer.prepare();
-
                 } catch (IOException e) {
-
                     e.printStackTrace();
                 }
-                mediaPlayer.start();
-                pauseButton.setBackgroundResource(R.drawable.pause);
-                if(status==0)
-                {
-                    pauseButton.setBackgroundResource(R.drawable.pause);
-                    status = 1;
+                    pausePlayAction();
                 }
+            });
 
 
-
-                stopButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        mediaPlayer.stop();
-                        pauseButton.setBackgroundResource(R.drawable.play);
-                        mediaPlayer.reset();
-
-
-                    }
-
-
-                });
-
-
-                pauseButton.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-
-
-                                if(mediaPlayer.isPlaying()==true)
-                                {
-                                    mediaPlayer.pause();
-
-                                    if(status==1)
-                                    {
-                                        pauseButton.setBackgroundResource(R.drawable.play);
-                                        status = 0;
-                                    }
-
-
-                                }else {
-                                    mediaPlayer.start();
-
-                                    if(status==0){
-                                        pauseButton.setBackgroundResource(R.drawable.pause);
-                                        status = 1;
-                                    }
-                                }
-
-                            }
-                        });
-
-               }
+            pausePlayButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    pausePlayAction();
+                }
             });
        // public void playCycle(){
         //    seekBar.setProgress(mediaPlayer.getCurrentPosition());
@@ -152,6 +96,21 @@ public class MainActivity extends AppCompatActivity {
           //  }
        // }
     }
+
+    public void pausePlayAction(){
+
+                if (mediaPlayer.isPlaying()) {
+                    mediaPlayer.pause();
+                    pausePlayButton.setBackgroundResource(R.drawable.play);
+                } else {
+                    mediaPlayer.start();
+                    pausePlayButton.setBackgroundResource(R.drawable.pause);
+                }
+            }
+
+
+
+
 
 
 
@@ -192,14 +151,15 @@ public class MainActivity extends AppCompatActivity {
 
         listView = (ListView) findViewById(R.id.listView);
         stopButton = (ImageButton) findViewById(R.id.stopButton);
-        pauseButton = (ImageButton) findViewById(R.id.pauseButton);
+        pausePlayButton = (ImageButton) findViewById(R.id.pauseButton);
         //seekBar = (SeekBar) findViewById(R.id.seekBar);
-        if(status==0)
-        {
-            pauseButton.setBackgroundResource(R.drawable.play);
-        }
 
-        doStuff();
+        //to see pause/play button when app is starting
+        pausePlayButton.setBackgroundResource(R.drawable.play);
+
+
+
+        CreateAdapter_and_getLocation_also_setupOnClickListener();
 
 
 
