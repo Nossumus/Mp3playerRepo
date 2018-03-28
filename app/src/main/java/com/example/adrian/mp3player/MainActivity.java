@@ -32,25 +32,20 @@ public class MainActivity extends AppCompatActivity {
     //declaration section
     MediaPlayer mediaPlayer = new MediaPlayer();
     Handler handler;
-
     TextView locationView;
+    private ImageButton backwardButton;
     private ImageButton pausePlayButton;
     private ImageButton forwardButton;
     SeekBar seekBar;
     String current_Location;
-    String next_Location;
-    String previous_Location;
-    String onPauseLocation;
-    String list;
-    String list2;
-    String list3;
-    String list4;
     int ArraySize;
     ArrayList<String> arrayList;
+    ArrayList<String> locationList;
     ListView listView;
     ArrayAdapter<String> adapter;
     Context context;
     boolean paused;
+    int pseudoCursor;
 
     public boolean checkPermissionForReadExtertalStorage() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -63,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     public void CreateAdapter_and_getLocation_also_setupOnClickListener() {
 
         arrayList = new ArrayList<>();
+        locationList = new ArrayList<>();
         getMusic();
         adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, arrayList);
         listView.setAdapter(adapter);
@@ -77,52 +73,20 @@ public class MainActivity extends AppCompatActivity {
                     mediaPlayer.reset();
 
                 }
-
+                // getting number of elements in array
                 ArraySize = arrayList.size() - 1;
 
-                //getting location of desired file
-                list = (adapterView.getItemAtPosition(position).toString());
+                // setting "Pseudo-cursor"
+                pseudoCursor = position;
+                // getting location of desired file
+                current_Location = locationList.get(pseudoCursor);
 
 
-                if (position == ArraySize) {
-                    list2 = (adapterView.getItemAtPosition(position).toString());// it will go back to start of an array
+                //list2 = (adapterView.getItemAtPosition(position).toString());// it will go back to start of an array
+               // onPauseLocation = list4.substring(list4.indexOf("/"));
+                
 
-                    list4 = (adapterView.getItemAtPosition(position).toString());
-                } if (paused){
-                    list2 = (adapterView.getItemAtPosition(position + 2).toString());
-                    list4 = (adapterView.getItemAtPosition(position + 2).toString());
-                }
-                else {
-                    list2 = (adapterView.getItemAtPosition(position + 1).toString());
-
-                    list4 = (adapterView.getItemAtPosition(position + 2).toString());
-                }
-                if (position < 0) {
-
-                    list3 = (adapterView.getItemAtPosition(position + 1).toString()); //it will play first song from array instead of getting crush the app
-
-                } else {
-
-                    list3 = (adapterView.getItemAtPosition(position).toString());
-                }
-
-
-                current_Location = null;
-                next_Location = null;
-                previous_Location = null;
-
-                current_Location = list.substring(list.indexOf("/"));
-                next_Location = list2.substring(list2.indexOf("/"));
-                previous_Location = list3.substring(list3.indexOf("/"));
-                onPauseLocation = list4.substring(list4.indexOf("/"));
-
-
-                if (!mediaPlayer.isPlaying() && paused) {
-                    mediaPlayer.stop();
-                    mediaPlayer.reset();
-                }
-
-                //setting data source
+                // setting data source
                 try {
                     //mediaPlayer.setDataSource(current_Location);
                     mediaPlayer.setDataSource(getApplicationContext(),Uri.parse(current_Location));
@@ -140,23 +104,36 @@ public class MainActivity extends AppCompatActivity {
                 pausePlayAction();
                 // seekBar.setMax(mediaPlayer.getDuration());
 
+                forwardButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        forwardAction();
+                    }
+                });
+
+                pausePlayButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        pausePlayAction();
+                    }
+                });
+
+                backwardButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        backwardAction();
+                    }
+                });
             }
+
         });
 
 
-        forwardButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                forwardAction();
-            }
-        });
 
-        pausePlayButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                pausePlayAction();
-            }
-        });
+
+
         // public void playCycle(){
         //    seekBar.setProgress(mediaPlayer.getCurrentPosition());
 
@@ -179,23 +156,29 @@ public class MainActivity extends AppCompatActivity {
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
             pausePlayButton.setBackgroundResource(R.drawable.play);
-            paused = true;
         } else {
             mediaPlayer.start();
             pausePlayButton.setBackgroundResource(R.drawable.pause);
-            paused = false;
 
         }
     }
 
     public void forwardAction() {
-       // if (mediaPlayer.isPlaying() || paused)
             mediaPlayer.stop();
             mediaPlayer.reset();
 
+            pseudoCursor++;
+
+            if(pseudoCursor > ArraySize)
+            {
+                // get back to the first song
+                pseudoCursor = 0;
+            }
+
+            current_Location = locationList.get(pseudoCursor);
             try {
-                mediaPlayer.setDataSource(this, Uri.parse(next_Location));
-                locationView.setText(next_Location);
+                mediaPlayer.setDataSource(this, Uri.parse(current_Location));
+                locationView.setText(current_Location);
                 // mediaPlayer.setDataSource(next_Location);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -210,27 +193,36 @@ public class MainActivity extends AppCompatActivity {
             pausePlayAction();
 
     }
-       // if(paused){
-        //    mediaPlayer.stop();
-         //   mediaPlayer.reset();
-         //   try {
-                //mediaPlayer.setDataSource(onPauseLocation);
-           //     mediaPlayer.setDataSource(this,Uri.parse(onPauseLocation));
-         //   } catch (IOException e) {
-         //       e.printStackTrace();
-         //   }
-            //preparing media player
-         //   try {
-          //      mediaPlayer.prepare();
-          //  } catch (IOException e) {
-          //      e.printStackTrace();
-          //  }
-            //run play/pause action
-          //  pausePlayAction();
 
-     //   }
+    public void backwardAction() {
+        mediaPlayer.stop();
+        mediaPlayer.reset();
 
+        pseudoCursor--;
 
+        if(pseudoCursor < 0)
+        {
+            // get back to the first song
+            pseudoCursor = 0;
+        }
+
+        current_Location = locationList.get(pseudoCursor);
+        try {
+            mediaPlayer.setDataSource(this, Uri.parse(current_Location));
+            locationView.setText(current_Location);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //preparing media player
+        try {
+            mediaPlayer.prepare();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        //run play/pause action
+        pausePlayAction();
+
+    }
 
     public void playCycle(){
             seekBar.setProgress(mediaPlayer.getCurrentPosition());
@@ -245,10 +237,6 @@ public class MainActivity extends AppCompatActivity {
              handler.postDelayed(runnable, 1000);
           }
          }
-
-
-
-
 
 
     public void getMusic() {
@@ -270,6 +258,7 @@ public class MainActivity extends AppCompatActivity {
                 currentArtist = songCursor.getString(songArtist);
                 currentLocation = songCursor.getString(songLocation);
                 arrayList.add("Title: " + currentTitle + "\n" + "Artist:" + currentArtist + "\n" + "Location: " + currentLocation);
+                locationList.add(currentLocation);
 
             } while (songCursor.moveToNext());
 
@@ -287,12 +276,13 @@ public class MainActivity extends AppCompatActivity {
 
         checkPermissionForReadExtertalStorage();
 
+        // find them, find them all!
         listView = (ListView) findViewById(R.id.listView);
-
         locationView = (TextView) findViewById(R.id.locationView);
         pausePlayButton = (ImageButton) findViewById(R.id.pauseButton);
         forwardButton = (ImageButton) findViewById(R.id.forwardButton);
-       // seekBar = (SeekBar) findViewById(R.id.seekBar);
+        backwardButton = (ImageButton) findViewById(R.id.backwardButton);
+        // seekBar = (SeekBar) findViewById(R.id.seekBar);
 
         //to see pause/play button when app is starting
         pausePlayButton.setBackgroundResource(R.drawable.play);

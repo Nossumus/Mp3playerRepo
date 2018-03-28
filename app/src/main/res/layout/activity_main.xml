@@ -48,6 +48,7 @@
             android:src="@drawable/forward" />
 
         <ImageButton
+            android:id="@+id/backwardButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
