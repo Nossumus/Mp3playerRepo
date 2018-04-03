@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
     //declaration section
     MediaPlayer mediaPlayer = new MediaPlayer();
-    Handler handler;
+    Handler handler = new Handler();
     TextView locationView;
     private ImageButton backwardButton;
     private ImageButton pausePlayButton;
@@ -46,6 +46,9 @@ public class MainActivity extends AppCompatActivity {
     Context context;
     boolean paused;
     int pseudoCursor;
+    int progressValue;
+    String songLength;
+    TextView textView;
 
     public boolean checkPermissionForReadExtertalStorage() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -68,11 +71,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
 
-                if (mediaPlayer.isPlaying()) {
+
                     mediaPlayer.stop();
                     mediaPlayer.reset();
 
-                }
+
                 // getting number of elements in array
                 ArraySize = arrayList.size() - 1;
 
@@ -84,13 +87,15 @@ public class MainActivity extends AppCompatActivity {
 
                 //list2 = (adapterView.getItemAtPosition(position).toString());// it will go back to start of an array
                // onPauseLocation = list4.substring(list4.indexOf("/"));
-                
+
 
                 // setting data source
                 try {
                     //mediaPlayer.setDataSource(current_Location);
-                    mediaPlayer.setDataSource(getApplicationContext(),Uri.parse(current_Location));
                     locationView.setText(current_Location);
+                    mediaPlayer.setDataSource(getApplicationContext(), Uri.parse(current_Location));
+                }catch (IllegalStateException e){
+                    e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -104,51 +109,38 @@ public class MainActivity extends AppCompatActivity {
                 pausePlayAction();
                 // seekBar.setMax(mediaPlayer.getDuration());
 
-                forwardButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
 
-                        forwardAction();
-                    }
-                });
-
-                pausePlayButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        pausePlayAction();
-                    }
-                });
-
-                backwardButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-
-                        backwardAction();
-                    }
-                });
             }
 
         });
 
+        forwardButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                forwardAction();
+            }
+        });
+
+        pausePlayButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                pausePlayAction();
+            }
+        });
+
+        backwardButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                backwardAction();
+            }
+        });
 
 
-
-
-        // public void playCycle(){
-        //    seekBar.setProgress(mediaPlayer.getCurrentPosition());
-
-        //   if(mediaPlayer.isPlaying()){
-        //     runnable = new Runnable() {
-        //       @Override
-        //       public void run() {
-        //          playCycle();
-        //        }
-        //   };
-        //     handler.postDelayed(runnable, 1000);
-        //  }
-        // }
 
     }
+
 
 
     public void pausePlayAction() {
@@ -159,6 +151,15 @@ public class MainActivity extends AppCompatActivity {
         } else {
             mediaPlayer.start();
             pausePlayButton.setBackgroundResource(R.drawable.pause);
+            seekBar();
+            playCycle();
+
+          //  mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+          //      @Override
+          //      public void onCompletion(MediaPlayer mediaPlayer) {
+          //          mediaPlayer.release();
+           //     }
+           // });
 
         }
     }
@@ -223,6 +224,44 @@ public class MainActivity extends AppCompatActivity {
         pausePlayAction();
 
     }
+    public void seekBar() {
+
+        seekBar.setMax(mediaPlayer.getDuration());
+        textView .setText(seekBar.getProgress() + "/" + seekBar.getMax());
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean input) {
+                if(input){
+                    mediaPlayer.seekTo(progress);
+                }
+                progressValue = (progress/1000);
+                if((seekBar.getMax()/1000)%60 < 10){
+                    songLength = (seekBar.getMax()/1000)/60 + ":0" + (seekBar.getMax()/1000)%60;
+                }else {
+                    songLength = (seekBar.getMax() / 1000) / 60 + ":" + (seekBar.getMax() / 1000) % 60;
+                }
+                if(progressValue%60 < 10){
+                    textView.setText(progressValue/60 + ":0" + progressValue % 60 + "/" + songLength);
+                }else{
+                textView.setText(progressValue/60 + ":" + progressValue % 60 + "/" + songLength);
+            }}
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                textView.setText(progressValue/60 + ":" + progressValue % 60 + "/" + songLength);
+                if(progressValue%60 < 10){
+                    textView.setText(progressValue/60 + ":0" + progressValue % 60 + "/" + songLength);
+                }else {
+                    textView.setText(progressValue / 60 + ":" + progressValue % 60 + "/" + songLength);
+                }
+            }
+        });
+    }
 
     public void playCycle(){
             seekBar.setProgress(mediaPlayer.getCurrentPosition());
@@ -233,10 +272,12 @@ public class MainActivity extends AppCompatActivity {
                public void run() {
                   playCycle();
                 }
-           };
-             handler.postDelayed(runnable, 1000);
+
+           };handler.postDelayed(runnable, 1);
+
           }
          }
+
 
 
     public void getMusic() {
@@ -282,12 +323,16 @@ public class MainActivity extends AppCompatActivity {
         pausePlayButton = (ImageButton) findViewById(R.id.pauseButton);
         forwardButton = (ImageButton) findViewById(R.id.forwardButton);
         backwardButton = (ImageButton) findViewById(R.id.backwardButton);
-        // seekBar = (SeekBar) findViewById(R.id.seekBar);
+        seekBar = (SeekBar) findViewById(R.id.seekBar);
+        textView = (TextView) findViewById(R.id.textView);
+
 
         //to see pause/play button when app is starting
         pausePlayButton.setBackgroundResource(R.drawable.play);
 
+
         CreateAdapter_and_getLocation_also_setupOnClickListener();
+
 
 
 

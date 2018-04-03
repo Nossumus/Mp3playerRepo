@@ -58,6 +58,14 @@
             android:background="@color/colorPrimaryDark"
             android:src="@drawable/backward" />
 
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_below="@+id/pauseButton"
+            android:layout_marginStart="15dp"
+            android:layout_toEndOf="@+id/forwardButton" />
 
 
     </RelativeLayout>
@@ -70,4 +78,12 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentStart="true"
         android:layout_marginBottom="20dp" />
+
+    <SeekBar
+        android:id="@+id/seekBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/listView" />
 </RelativeLayout>
