@@ -1,89 +1,112 @@
 <?xml version="1.0" encoding="utf-8"?>
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimaryDark"
+    android:orientation="vertical"
+    tools:context="com.example.adrian.mp3player.MainActivity">
+
+
+    <ListView
+        android:id="@+id/listView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:background="@color/colorPrimaryDark"
-        tools:context="com.example.adrian.mp3player.MainActivity">
+        android:layout_above="@+id/relativeLayout"
+        android:layout_alignParentStart="true"
+        android:textColor="@color/textColor">
 
-
-        <ListView
-            android:id="@+id/listView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_above="@+id/relativeLayout"
-            android:layout_alignParentStart="true"
-            android:textColor="@color/textColor">
-
-        </ListView>
+    </ListView>
 
     <RelativeLayout
         android:id="@+id/relativeLayout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="140dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentStart="true"
-        android:layout_marginBottom="47dp">
+        android:background="@color/bottomLayout">
+
 
         <ImageButton
             android:id="@+id/pauseButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp"
-            android:background="@color/colorPrimaryDark" />
+            android:layout_alignBottom="@+id/forwardButton"
+            android:layout_centerHorizontal="true" />
 
         <ImageButton
             android:id="@+id/forwardButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_marginStart="40dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="5dp"
+            android:layout_below="@+id/seekBar"
+            android:layout_marginStart="31dp"
             android:layout_toEndOf="@+id/pauseButton"
-            android:background="@color/colorPrimaryDark"
-            android:src="@drawable/forward" />
+            android:background="@color/bottomLayout"
+            android:src="@drawable/forward"/>
 
         <ImageButton
             android:id="@+id/backwardButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_marginEnd="40dp"
-            android:layout_marginTop="20dp"
+            android:layout_alignBottom="@+id/pauseButton"
+            android:layout_marginEnd="32dp"
             android:layout_toStartOf="@+id/pauseButton"
-            android:background="@color/colorPrimaryDark"
+            android:background="@color/bottomLayout"
             android:src="@drawable/backward" />
 
-        <TextView
-            android:id="@+id/textView"
+        <SeekBar
+            android:id="@+id/seekBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
-            android:layout_below="@+id/pauseButton"
-            android:layout_marginStart="15dp"
-            android:layout_toEndOf="@+id/forwardButton" />
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/linearLayout" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/bottomLayout"
+            android:id="@+id/linearLayout">
+
+        <TextView
+            android:id="@+id/title_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/seekBar"
+            android:layout_alignParentEnd="true"
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:scrollHorizontally="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginBottom="10dp"
+            android:text="Title"
+            android:textColor="@color/textColor"
+            android:textSize="18dp"/>
+
+            </LinearLayout>
+
+        <TextView
+            android:id="@+id/timer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignTop="@+id/forwardButton"
+            android:layout_marginStart="14dp"
+            android:layout_toEndOf="@+id/forwardButton"
+            android:text="00:00/00:00"
+            android:textColor="@color/textColor"/>
 
 
     </RelativeLayout>
 
-    <TextView
-        android:id="@+id/locationView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="20dp" />
 
-    <SeekBar
-        android:id="@+id/seekBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentStart="true"
-        android:layout_below="@+id/listView" />
 </RelativeLayout>
