@@ -83,12 +83,14 @@ public class MainActivity extends AppCompatActivity {
     boolean condition = true;
     public PendingIntent pendingIntent;
     public static final String PAUSE = "com.example.adrian.mp3player.pausePlayAction";
+    ImageButton repeatButton;
+    boolean loop;
 
     int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
     int READ_STORAGE_PERMISSION_REQUEST_CODE = 1;
 
 
-    public boolean checkPermissionForReadExtertalStorage() {
+    public boolean checkPermissionForReadExternalStorage() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             int result = context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
             return result == PackageManager.PERMISSION_GRANTED;
@@ -96,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    public void requestPermissionForReadExtertalStorage() throws Exception {
+    public void requestPermissionForReadExternalStorage() throws Exception {
         try {
             ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
                     READ_STORAGE_PERMISSION_REQUEST_CODE);
@@ -106,8 +108,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void looping()
+    {
+        if(loop){
+            mediaPlayer.setLooping(true);
+            repeatButton.setBackgroundResource(R.drawable.ic_repeat_one_song);
+        }else {
+            mediaPlayer.setLooping(false);
+            repeatButton.setBackgroundResource(R.drawable.repeat);
+        }
+    }
 
-    public void checkPermissionForReadExternalStorage() {
+    public void checkPermissionForReadExternalStorageAlternative() {
 
 
             if (ContextCompat.checkSelfPermission(this,
@@ -174,8 +186,27 @@ public class MainActivity extends AppCompatActivity {
                 // there will be error if current_Location have # sign inside
                 mediaPlayer = MediaPlayer.create(getApplicationContext(), Uri.parse(current_Location));
                 pausePlayAction();
+
+
+
+
             }
         });
+
+        repeatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(mediaPlayer.isLooping()){
+                    loop=false;
+                    repeatButton.setBackgroundResource(R.drawable.repeat);
+                }else if(!mediaPlayer.isLooping()){
+                    loop=true;
+                    repeatButton.setBackgroundResource(R.drawable.ic_repeat_one_song);
+                }
+
+            }
+        });
+
 
         forwardButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -199,10 +230,15 @@ public class MainActivity extends AppCompatActivity {
                 backwardAction();
             }
         });
+
+
     }
+
+
 
     public void pausePlayAction() {
 
+        looping();
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
             pausePlayButton.setBackgroundResource(R.drawable.play);
@@ -212,6 +248,18 @@ public class MainActivity extends AppCompatActivity {
             seekBar();
             playCycle();
 
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mediaPlayer) {
+                    pausePlayButton.setBackgroundResource(R.drawable.play);
+                    if(loop){
+                        pausePlayAction();
+                    }else{
+                        pausePlayButton.setBackgroundResource(R.drawable.play);
+                        forwardAction();
+                    }
+                }
+            });
 
             //  mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             //      @Override
@@ -339,7 +387,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void playCycle() {
         seekBar.setProgress(mediaPlayer.getCurrentPosition());
-
+        looping();
         if (mediaPlayer.isPlaying()) {
             Runnable runnable = new Runnable() {
                 @Override
@@ -415,12 +463,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         context = this;
+        loop = false;
         //checkPermissionForReadExternalStorage();
 
-        if(checkPermissionForReadExtertalStorage()==false)
+        if(!checkPermissionForReadExternalStorage())
         {
             try {
-                requestPermissionForReadExtertalStorage();
+                requestPermissionForReadExternalStorage();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -434,12 +483,14 @@ public class MainActivity extends AppCompatActivity {
         pausePlayButton = (ImageButton) findViewById(R.id.pauseButton);
         forwardButton = (ImageButton) findViewById(R.id.forwardButton);
         backwardButton = (ImageButton) findViewById(R.id.backwardButton);
+        repeatButton = (ImageButton) findViewById(R.id.repeatButton);
         seekBar = (SeekBar) findViewById(R.id.seekBar);
         textView = (TextView) findViewById(R.id.timer);
 
 
-        // to see pause/play button when app is starting
+        // to see pause/play button and repeat button when app is starting
         pausePlayButton.setBackgroundResource(R.drawable.play);
+        repeatButton.setBackgroundResource(R.drawable.repeat);
 
 
         CreateAdapter_and_getLocation_also_setupOnClickListener();
