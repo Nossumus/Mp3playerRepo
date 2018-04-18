@@ -12,16 +12,15 @@ import android.widget.Toast;
  */
 
 
-
 public class NotificationActivity extends AppCompatActivity {
 
     ImageButton imageButton;
 
 
     @Override
-   protected void onCreate(Bundle savedInstanceState) {
-       super.onCreate(savedInstanceState);
-       setContentView(R.layout.notification_layout);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.notification_layout);
 
         imageButton = (ImageButton) findViewById(R.id.notificationPausePlayButton);
         imageButton.setOnClickListener(new View.OnClickListener() {
@@ -31,7 +30,7 @@ public class NotificationActivity extends AppCompatActivity {
                 intent.setAction("com.example.adrian.mp3player");
                 intent.addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES);
                 sendBroadcast(intent);
-                Toast.makeText(getApplicationContext(), "Message Sent" ,Toast.LENGTH_LONG);
+                Toast.makeText(getApplicationContext(), "Message Sent", Toast.LENGTH_LONG);
             }
         });
 

@@ -1,6 +1,7 @@
 package com.example.adrian.mp3player;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -21,9 +22,11 @@ import android.os.Handler;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.provider.SyncStateContract;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.RemoteInput;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -81,14 +84,62 @@ public class MainActivity extends AppCompatActivity {
     public PendingIntent pendingIntent;
     public static final String PAUSE = "com.example.adrian.mp3player.pausePlayAction";
 
+    int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
+    int READ_STORAGE_PERMISSION_REQUEST_CODE = 1;
 
-    public boolean checkPermissionForReadExternalStorage() {
+
+    public boolean checkPermissionForReadExtertalStorage() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             int result = context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
             return result == PackageManager.PERMISSION_GRANTED;
         }
         return false;
     }
+
+    public void requestPermissionForReadExtertalStorage() throws Exception {
+        try {
+            ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    READ_STORAGE_PERMISSION_REQUEST_CODE);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+    }
+
+
+    public void checkPermissionForReadExternalStorage() {
+
+
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.READ_CONTACTS)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                // Permission is not granted
+                // Should we show an explanation?
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        Manifest.permission.READ_EXTERNAL_STORAGE)) {
+
+                    // Show an explanation to the user *asynchronously* -- don't block
+                    // this thread waiting for the user's response! After the user
+                    // sees the explanation, try again to request the permission.
+
+                } else {
+
+                    // No explanation needed; request the permission
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                            MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+
+                    // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                    // app-defined int constant. The callback method gets the
+                    // result of the request.
+                }
+            } else {
+                // Permission has already been granted
+            }
+
+        }
+
 
     public void CreateAdapter_and_getLocation_also_setupOnClickListener() {
 
@@ -336,17 +387,20 @@ public class MainActivity extends AppCompatActivity {
 
         remoteViews = new RemoteViews(getPackageName(), R.layout.notification_layout);
         remoteViews.setImageViewResource(R.id.notificationPausePlayButton, R.drawable.play);
-        //remoteViews.setImageViewResource(R.id.pauseButton,R.mipmap.ic_launcher);
         remoteViews.setTextViewText(R.id.nTitle, current_Title);
 
         builder = new NotificationCompat.Builder(getApplicationContext(), "channel_1");
-        //builder.setCustomBigContentView(remoteViews);
-        builder.setCustomContentView(remoteViews);
-        builder.setSmallIcon(R.drawable.ic_action_name);
+        builder.setCustomBigContentView(remoteViews);
+        //builder.setCustomContentView(remoteViews);
+        builder.setSmallIcon(R.drawable.ic_notifiaction_status_bar);
+        builder.setTicker(current_Title);
         //builder.addAction(R.drawable.pause,current_Title,pendingIntent);
 
-        remoteViews.setOnClickPendingIntent(R.id.nTitle,pendingIntent);
+        //remoteViews.setOnClickPendingIntent(R.id.nTitle,pendingIntent);
 
+       // Intent intent = new Intent(this, MainActivity.class);
+       // PendingIntent pendingIntent = PendingIntent.getActivity(this,0,intent, PendingIntent.FLAG_UPDATE_CURRENT);
+       // builder.setContentIntent(pendingIntent);
 
 
         notificationManager.notify(0, builder.build());
@@ -360,7 +414,17 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        checkPermissionForReadExternalStorage();
+        context = this;
+        //checkPermissionForReadExternalStorage();
+
+        if(checkPermissionForReadExtertalStorage()==false)
+        {
+            try {
+                requestPermissionForReadExtertalStorage();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         // find them, find them all!
         title = (TextView) findViewById(R.id.title_view);
