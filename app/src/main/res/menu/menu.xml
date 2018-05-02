@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.adrian.mp3player.MainActivity">
+
+    <item
+        android:title="menu"
+        android:id="@+id/menu"
+        android:icon="@drawable/ic_menu"
+        app:showAsAction="always">
+    </item>
+
+
+</menu>

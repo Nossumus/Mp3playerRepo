@@ -32,6 +32,8 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,9 +51,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 
+
+
 public class MainActivity extends AppCompatActivity {
 
-    //declaration section
+    // declaration section
     MediaPlayer mediaPlayer = new MediaPlayer();
     Handler handler = new Handler();
     TextView locationView;
@@ -78,16 +82,28 @@ public class MainActivity extends AppCompatActivity {
     private RemoteViews remoteViews;
     private NotificationManager notificationManager;
     NotificationCompat.Builder builder;
-    private int notification_id;
     private RemoteAction remoteAction;
     boolean condition = true;
-    public PendingIntent pendingIntent;
-    public static final String PAUSE = "com.example.adrian.mp3player.pausePlayAction";
+    public PendingIntent pendingPlayPauseIntent;
+    public PendingIntent pendingForwardIntent;
+    public PendingIntent pendingBackwardIntent;
+    public static final String PAUSE = "com.example.adrian.mp3player.PAUSE";
+    public static final String FORWARD = "com.example.adrian.mp3player.FORWARD";
+    public static final String BACKWARD = "com.example.adrian.mp3player.BACKWARD";
     ImageButton repeatButton;
     boolean loop;
-
+    boolean isThereLocationSet=false;
+    public Intent playIntent;
+    boolean isThereNotificationSet = false;
+    Boolean playPauseNotificationPressed;
     int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
     int READ_STORAGE_PERMISSION_REQUEST_CODE = 1;
+    Intent chooseIntent;
+    String passingValue;
+    String s;
+
+    private int notification_id;
+
 
 
     public boolean checkPermissionForReadExternalStorage() {
@@ -178,9 +194,10 @@ public class MainActivity extends AppCompatActivity {
                 current_Location = locationList.get(pseudoCursor);
                 // encode location
                 current_Location = Uri.encode(current_Location);
+                // isThereLocationSet
+                isThereLocationSet=true;
                 // set title
                 current_Title = titleList.get(pseudoCursor);
-                notificationPlayer();
                 // set title text view
                 title.setText(current_Title);
                 // there will be error if current_Location have # sign inside
@@ -196,10 +213,15 @@ public class MainActivity extends AppCompatActivity {
         repeatButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if(!isThereLocationSet){
+                    return;
+                }
                 if(mediaPlayer.isLooping()){
                     loop=false;
+                    mediaPlayer.setLooping(false);
                     repeatButton.setBackgroundResource(R.drawable.repeat);
                 }else if(!mediaPlayer.isLooping()){
+                    mediaPlayer.setLooping(true);
                     loop=true;
                     repeatButton.setBackgroundResource(R.drawable.ic_repeat_one_song);
                 }
@@ -208,10 +230,16 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+
+
+
         forwardButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
+                if(!isThereLocationSet){
+                    return;
+                }
                 forwardAction();
             }
         });
@@ -219,14 +247,18 @@ public class MainActivity extends AppCompatActivity {
         pausePlayButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                pausePlayAction();
+                if(!isThereLocationSet){
+                    return;
+                }pausePlayAction();
             }
         });
 
         backwardButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                if(!isThereLocationSet){
+                    return;
+                }
                 backwardAction();
             }
         });
@@ -237,14 +269,23 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void pausePlayAction() {
-
+        if(isThereNotificationSet==false) {
+         //   notificationPlayer();
+        }
+        if(!isThereLocationSet){
+            return;
+        }
         looping();
         if (mediaPlayer.isPlaying()) {
             mediaPlayer.pause();
+            notificationPlayer();
             pausePlayButton.setBackgroundResource(R.drawable.play);
+            //remoteViews.setImageViewResource(R.id.notificationPausePlayButton, R.drawable.play);
         } else {
             mediaPlayer.start();
-            pausePlayButton.setBackgroundResource(R.drawable.pause);
+            notificationPlayer();
+            pausePlayButton.setBackgroundResource(R.drawable.yellow_pause);
+          //  remoteViews.setImageViewResource(R.id.notificationPausePlayButton, R.drawable.yellow_pause);
             seekBar();
             playCycle();
 
@@ -252,10 +293,12 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onCompletion(MediaPlayer mediaPlayer) {
                     pausePlayButton.setBackgroundResource(R.drawable.play);
+                   // remoteViews.setImageViewResource(R.id.notificationPausePlayButton, R.drawable.play);
                     if(loop){
                         pausePlayAction();
                     }else{
                         pausePlayButton.setBackgroundResource(R.drawable.play);
+                       // remoteViews.setImageViewResource(R.id.notificationPausePlayButton, R.drawable.play);
                         forwardAction();
                     }
                 }
@@ -273,6 +316,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void forwardAction() {
 
+        if(!isThereLocationSet){
+            return;
+        }
         mediaPlayer.stop();
         mediaPlayer.reset();
 
@@ -288,7 +334,8 @@ public class MainActivity extends AppCompatActivity {
         current_Location = Uri.encode(current_Location);
         // set title
         current_Title = titleList.get(pseudoCursor);
-        notificationPlayer();
+       // notificationPlayer();
+        remoteViews.setTextViewText(R.id.nTitle, current_Title);
 
         try {
             mediaPlayer.setDataSource(this, Uri.parse(current_Location));
@@ -309,6 +356,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void backwardAction() {
+        if(!isThereLocationSet){
+            return;
+        }
         mediaPlayer.stop();
         mediaPlayer.reset();
 
@@ -324,8 +374,9 @@ public class MainActivity extends AppCompatActivity {
         current_Location = Uri.encode(current_Location);
         // set title
         current_Title = titleList.get(pseudoCursor);
+       // notificationPlayer();
+        remoteViews.setTextViewText(R.id.nTitle, current_Title);
         // set data source
-        notificationPlayer();
         try {
             mediaPlayer.setDataSource(this, Uri.parse(current_Location));
             // set title text view
@@ -429,32 +480,91 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void notificationPlayer() {
-        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+ //   private Intent getNotificationIntent(){
+ //       Intent intent = new Intent(this, MainActivity.class);
+  //      intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+   //     return intent;
+   // }
 
+  //  private void showActionNotification(){
+   //     playIntent = getNotificationIntent();
+   //     playIntent.setAction(PAUSE);
+   // }
 
-        remoteViews = new RemoteViews(getPackageName(), R.layout.notification_layout);
-        remoteViews.setImageViewResource(R.id.notificationPausePlayButton, R.drawable.play);
-        remoteViews.setTextViewText(R.id.nTitle, current_Title);
+   // private void processIntentAction(Intent playIntent){
+    //    if (playIntent.getAction() != null){
+     //       switch (playIntent.getAction()){
+     //           case PAUSE:
+     //               pausePlayAction();
+      //              break;
+     //       }
+     //   }
+  //  }
 
-        builder = new NotificationCompat.Builder(getApplicationContext(), "channel_1");
-        builder.setCustomBigContentView(remoteViews);
-        //builder.setCustomContentView(remoteViews);
-        builder.setSmallIcon(R.drawable.ic_notifiaction_status_bar);
-        builder.setTicker(current_Title);
-        //builder.addAction(R.drawable.pause,current_Title,pendingIntent);
+   // public void notificationPlayer() {
 
-        //remoteViews.setOnClickPendingIntent(R.id.nTitle,pendingIntent);
-
-       // Intent intent = new Intent(this, MainActivity.class);
-       // PendingIntent pendingIntent = PendingIntent.getActivity(this,0,intent, PendingIntent.FLAG_UPDATE_CURRENT);
-       // builder.setContentIntent(pendingIntent);
-
-
-        notificationManager.notify(0, builder.build());
-
-
+    //}
+    private Intent getNotificationIntent() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP  | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        return intent;
     }
+
+
+
+    public void notificationPlayer() {
+
+        Intent pauseIntent = getNotificationIntent();
+        pauseIntent.setAction(PAUSE);
+
+        Intent forwardIntent = getNotificationIntent();
+        forwardIntent.setAction(FORWARD);
+
+        Intent backwardIntent = getNotificationIntent();
+        backwardIntent.setAction(BACKWARD);
+
+
+        if (isThereNotificationSet == false) {
+            notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+            pendingPlayPauseIntent = PendingIntent.getActivity(this, 0, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            pendingForwardIntent = PendingIntent.getActivity(this, 0, forwardIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            pendingBackwardIntent = PendingIntent.getActivity(this, 0, backwardIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+            remoteViews = new RemoteViews(getPackageName(), R.layout.notification_layout);
+            if(mediaPlayer.isPlaying()){
+                remoteViews.setImageViewResource(R.id.notificationPausePlayButton, R.drawable.yellow_pause);
+            }else {
+                remoteViews.setImageViewResource(R.id.notificationPausePlayButton, R.drawable.play);
+            }
+            remoteViews.setImageViewResource(R.id.imageView, R.drawable.cover);
+            remoteViews.setTextViewText(R.id.nTitle, current_Title);
+
+            remoteViews.setOnClickPendingIntent(R.id.notificationPausePlayButton, pendingPlayPauseIntent);
+            remoteViews.setOnClickPendingIntent(R.id.notificationForwardButton, pendingForwardIntent);
+            remoteViews.setOnClickPendingIntent(R.id.notificationBackwardButton, pendingBackwardIntent);
+
+/*
+            notification_id = 0;
+            Intent button_intent = new Intent("Button clicked!");
+            button_intent.putExtra("id", notification_id);
+
+            pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 123, button_intent, 0);
+            remoteViews.setOnClickPendingIntent(R.id.notificationPausePlayButton, pendingIntent);
+*/
+
+            builder = new NotificationCompat.Builder(getApplicationContext(), "channel_1");
+            builder.setContentIntent(PendingIntent.getActivity(this, 0, getNotificationIntent(), PendingIntent.FLAG_UPDATE_CURRENT));
+            builder.setContent(remoteViews);
+            builder.setSmallIcon(R.drawable.ic_notifiaction_status_bar);
+            builder.setTicker(current_Title);
+           // builder.addAction(new NotificationCompat.Action(R.drawable.play, "", PendingIntent.getActivity(this, 0, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT)));
+
+
+            notificationManager.notify(notification_id, builder.build());
+        }
+    }
+
 
 
     @Override
@@ -464,7 +574,6 @@ public class MainActivity extends AppCompatActivity {
 
         context = this;
         loop = false;
-        //checkPermissionForReadExternalStorage();
 
         if(!checkPermissionForReadExternalStorage())
         {
@@ -495,8 +604,56 @@ public class MainActivity extends AppCompatActivity {
 
         CreateAdapter_and_getLocation_also_setupOnClickListener();
 
+        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationPlayer();
+        processIntentAction(getIntent());
+
 
     }
+    @Override
+    protected void onNewIntent(Intent intent) {
+        processIntentAction(intent);
+        super.onNewIntent(intent);
+    }
+
+    private void processIntentAction(Intent intent) {
+        if (intent.getAction() != null) {
+            switch (intent.getAction()) {
+                case PAUSE:
+                    //Toast.makeText(this, "PAUSE", Toast.LENGTH_SHORT).show();
+                    pausePlayAction();
+                    break;
+
+                case FORWARD:
+                    forwardAction();
+                    break;
+
+                case BACKWARD:
+                backwardAction();
+                break;
+            }
+        }
+    }
+
+
+
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+    getMenuInflater().inflate(R.menu.menu,menu);
+    return true;
+    }
+
+   @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.menu:
+                startActivity(new Intent(this, MenuActivity.class));
+               return true;
+        }
+        return super.onOptionsItemSelected(item);
+   }
 }
 
 

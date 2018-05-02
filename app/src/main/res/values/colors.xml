@@ -2,7 +2,7 @@
 <resources>
     <color name="colorPrimary">#2f4c9f</color> <!--kolor paska głównego  #7290e4-->
     <color name="colorPrimaryDark">#506ec4</color> <!--kolor listy, #819eef niebieski-->
-    <color name="colorAccent">#FFFFFF</color> <!--kolor przycisku + -->
+    <color name="colorAccent">#C3Cf0C</color> <!--seekbar color -->
     <color name="bottomLayout">#2f4c9f</color>
     <color name="textColor">#FFFFFF</color>
 </resources>
