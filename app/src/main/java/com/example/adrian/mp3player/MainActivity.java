@@ -1,6 +1,7 @@
 package com.example.adrian.mp3player;
 
 import android.Manifest;
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -22,6 +23,7 @@ import android.os.Handler;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.provider.SyncStateContract;
+import android.service.notification.StatusBarNotification;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
@@ -48,6 +50,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 
@@ -60,7 +64,6 @@ public class MainActivity extends AppCompatActivity {
     Handler handler = new Handler();
     TextView locationView;
     TextView title;
-    private Button notifButton;
     private ImageButton backwardButton;
     private ImageButton pausePlayButton;
     private ImageButton forwardButton;
@@ -73,17 +76,13 @@ public class MainActivity extends AppCompatActivity {
     ListView listView;
     ArrayAdapter<String> adapter;
     Context context;
-    boolean paused;
     int pseudoCursor;
     int progressValue;
     String songLength;
     TextView textView;
-    TextView notificationTitle;
     private RemoteViews remoteViews;
     private NotificationManager notificationManager;
     NotificationCompat.Builder builder;
-    private RemoteAction remoteAction;
-    boolean condition = true;
     public PendingIntent pendingPlayPauseIntent;
     public PendingIntent pendingForwardIntent;
     public PendingIntent pendingBackwardIntent;
@@ -93,15 +92,9 @@ public class MainActivity extends AppCompatActivity {
     ImageButton repeatButton;
     boolean loop;
     boolean isThereLocationSet=false;
-    public Intent playIntent;
     boolean isThereNotificationSet = false;
-    Boolean playPauseNotificationPressed;
     int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
     int READ_STORAGE_PERMISSION_REQUEST_CODE = 1;
-    Intent chooseIntent;
-    String passingValue;
-    String s;
-
     private int notification_id;
 
 
@@ -269,9 +262,6 @@ public class MainActivity extends AppCompatActivity {
 
 
     public void pausePlayAction() {
-        if(isThereNotificationSet==false) {
-         //   notificationPlayer();
-        }
         if(!isThereLocationSet){
             return;
         }
@@ -304,21 +294,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-            //  mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            //      @Override
-            //      public void onCompletion(MediaPlayer mediaPlayer) {
-            //          mediaPlayer.release();
-            //     }
-            // });
 
         }
     }
 
     public void forwardAction() {
 
-        if(!isThereLocationSet){
-            return;
-        }
+
         mediaPlayer.stop();
         mediaPlayer.reset();
 
@@ -334,8 +316,8 @@ public class MainActivity extends AppCompatActivity {
         current_Location = Uri.encode(current_Location);
         // set title
         current_Title = titleList.get(pseudoCursor);
-       // notificationPlayer();
-        remoteViews.setTextViewText(R.id.nTitle, current_Title);
+       notificationPlayer();
+       // remoteViews.setTextViewText(R.id.nTitle, current_Title);
 
         try {
             mediaPlayer.setDataSource(this, Uri.parse(current_Location));
@@ -356,9 +338,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void backwardAction() {
-        if(!isThereLocationSet){
-            return;
-        }
+
         mediaPlayer.stop();
         mediaPlayer.reset();
 
@@ -374,8 +354,8 @@ public class MainActivity extends AppCompatActivity {
         current_Location = Uri.encode(current_Location);
         // set title
         current_Title = titleList.get(pseudoCursor);
-       // notificationPlayer();
-        remoteViews.setTextViewText(R.id.nTitle, current_Title);
+       notificationPlayer();
+        //remoteViews.setTextViewText(R.id.nTitle, current_Title);
         // set data source
         try {
             mediaPlayer.setDataSource(this, Uri.parse(current_Location));
@@ -480,34 +460,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
- //   private Intent getNotificationIntent(){
- //       Intent intent = new Intent(this, MainActivity.class);
-  //      intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-   //     return intent;
-   // }
-
-  //  private void showActionNotification(){
-   //     playIntent = getNotificationIntent();
-   //     playIntent.setAction(PAUSE);
-   // }
-
-   // private void processIntentAction(Intent playIntent){
-    //    if (playIntent.getAction() != null){
-     //       switch (playIntent.getAction()){
-     //           case PAUSE:
-     //               pausePlayAction();
-      //              break;
-     //       }
-     //   }
-  //  }
-
-   // public void notificationPlayer() {
-
-    //}
     private Intent getNotificationIntent() {
         Intent intent = new Intent(this, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP  | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP  | Intent.FLAG_ACTIVITY_SINGLE_TOP );
         return intent;
+    }
+
+    public void expandStatusBar(){
+
+
     }
 
 
@@ -622,6 +583,10 @@ public class MainActivity extends AppCompatActivity {
                 case PAUSE:
                     //Toast.makeText(this, "PAUSE", Toast.LENGTH_SHORT).show();
                     pausePlayAction();
+                    expandStatusBar();
+
+
+
                     break;
 
                 case FORWARD:
@@ -634,8 +599,6 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
-
-
 
 
 
