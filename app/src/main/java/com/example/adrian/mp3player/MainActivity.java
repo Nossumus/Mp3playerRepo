@@ -495,14 +495,17 @@ public class MainActivity extends AppCompatActivity {
 
         Intent pauseIntent = new Intent();
         pauseIntent.setAction(PAUSE);
+        pauseIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP  | Intent.FLAG_ACTIVITY_SINGLE_TOP );
        // pauseIntent.putExtra(PAUSE,"value!");
 
 
         Intent forwardIntent = new Intent();
         forwardIntent.setAction(FORWARD);
+        forwardIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP  | Intent.FLAG_ACTIVITY_SINGLE_TOP );
 
         Intent backwardIntent = new Intent();
         backwardIntent.setAction(BACKWARD);
+        backwardIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP  | Intent.FLAG_ACTIVITY_SINGLE_TOP );
 
 
         if (isThereNotificationSet == false) {
@@ -533,11 +536,12 @@ public class MainActivity extends AppCompatActivity {
             pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 123, button_intent, 0);
             remoteViews.setOnClickPendingIntent(R.id.notificationPausePlayButton, pendingIntent);
 */
-            Intent NotifIntent = new Intent(this, MainActivity.class);
+           // to manage clicking on notification  Intent NotifIntent = new Intent(this, MainActivity.class);
+           // to manage clicking on notification NotifIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP  | Intent.FLAG_ACTIVITY_SINGLE_TOP );
 
 
             builder = new NotificationCompat.Builder(getApplicationContext(), "channel_1");
-            builder.setContentIntent(PendingIntent.getActivity(this, 0, NotifIntent, PendingIntent.FLAG_UPDATE_CURRENT));
+           // to manage clicking on notification builder.setContentIntent(PendingIntent.getActivity(this, 0, NotifIntent, PendingIntent.FLAG_UPDATE_CURRENT));
             builder.setContent(remoteViews);
             builder.setSmallIcon(R.drawable.ic_notifiaction_status_bar);
             builder.setTicker(current_Title);
