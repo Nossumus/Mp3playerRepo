@@ -3,6 +3,7 @@ package com.example.adrian.mp3player;
 import android.Manifest;
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.KeyguardManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -17,6 +18,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
@@ -460,10 +462,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private Intent getNotificationIntent() {
+   private Intent getNotificationIntent() {
         Intent intent = new Intent(this, MainActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP  | Intent.FLAG_ACTIVITY_SINGLE_TOP );
         return intent;
+        //Intent intent = new Intent(this, MainActivity.class);
+      //  intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP  | Intent.FLAG_ACTIVITY_SINGLE_TOP   );
+     //   return intent;
+
+
     }
 
     public void expandStatusBar(){
@@ -471,26 +478,39 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void keyLockChecker(){
+        KeyguardManager myKM = (KeyguardManager) context.getSystemService(Context.KEYGUARD_SERVICE);
+        if( myKM.inKeyguardRestrictedInputMode()) {
+            //it is locked
+        } else {
+            //it is not locked
+        }
+    }
+
+
+
 
 
     public void notificationPlayer() {
 
-        Intent pauseIntent = getNotificationIntent();
+        Intent pauseIntent = new Intent();
         pauseIntent.setAction(PAUSE);
+       // pauseIntent.putExtra(PAUSE,"value!");
 
-        Intent forwardIntent = getNotificationIntent();
+
+        Intent forwardIntent = new Intent();
         forwardIntent.setAction(FORWARD);
 
-        Intent backwardIntent = getNotificationIntent();
+        Intent backwardIntent = new Intent();
         backwardIntent.setAction(BACKWARD);
 
 
         if (isThereNotificationSet == false) {
             notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
 
-            pendingPlayPauseIntent = PendingIntent.getActivity(this, 0, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            pendingForwardIntent = PendingIntent.getActivity(this, 0, forwardIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-            pendingBackwardIntent = PendingIntent.getActivity(this, 0, backwardIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            pendingPlayPauseIntent = PendingIntent.getBroadcast(this, 0, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            pendingForwardIntent = PendingIntent.getBroadcast(this, 0, forwardIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            pendingBackwardIntent = PendingIntent.getBroadcast(this, 0, backwardIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             remoteViews = new RemoteViews(getPackageName(), R.layout.notification_layout);
             if(mediaPlayer.isPlaying()){
@@ -513,12 +533,16 @@ public class MainActivity extends AppCompatActivity {
             pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 123, button_intent, 0);
             remoteViews.setOnClickPendingIntent(R.id.notificationPausePlayButton, pendingIntent);
 */
+            Intent NotifIntent = new Intent(this, MainActivity.class);
+
 
             builder = new NotificationCompat.Builder(getApplicationContext(), "channel_1");
-            builder.setContentIntent(PendingIntent.getActivity(this, 0, getNotificationIntent(), PendingIntent.FLAG_UPDATE_CURRENT));
+            builder.setContentIntent(PendingIntent.getActivity(this, 0, NotifIntent, PendingIntent.FLAG_UPDATE_CURRENT));
             builder.setContent(remoteViews);
             builder.setSmallIcon(R.drawable.ic_notifiaction_status_bar);
             builder.setTicker(current_Title);
+           // builder.setAutoCancel(false);
+           // builder.setOngoing(true);
            // builder.addAction(new NotificationCompat.Action(R.drawable.play, "", PendingIntent.getActivity(this, 0, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT)));
 
 
@@ -567,42 +591,83 @@ public class MainActivity extends AppCompatActivity {
 
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationPlayer();
-        processIntentAction(getIntent());
+       // processIntentAction(getIntent());
+
+        MyBroadcastReceiver broadcastReceiver = new MyBroadcastReceiver();
+
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        filter.addAction(PAUSE);
+        filter.addAction(FORWARD);
+        filter.addAction(BACKWARD);
+        this.registerReceiver(broadcastReceiver, filter);
+
+        //MyBroadcastReceiver forwardBroadcastReceiver = new MyBroadcastReceiver();
+
+       // IntentFilter forwardFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+       // forwardFilter.addAction(PAUSE);
+       // this.registerReceiver(forwardBroadcastReceiver, forwardFilter);
 
 
     }
-    @Override
-    protected void onNewIntent(Intent intent) {
-        processIntentAction(intent);
-        super.onNewIntent(intent);
-    }
+   // @Override
+   // protected void onNewIntent(Intent intent) {
+   //     processIntentAction(intent);
+   //     super.onNewIntent(intent);
+   // }
 
-    private void processIntentAction(Intent intent) {
-        if (intent.getAction() != null) {
-            switch (intent.getAction()) {
-                case PAUSE:
+  //  private void processIntentAction(Intent intent ) {
+
+     //   if (intent.getAction() != null) {
+      //      switch (intent.getAction()) {
+       //         case PAUSE:
                     //Toast.makeText(this, "PAUSE", Toast.LENGTH_SHORT).show();
+       //             pausePlayAction();
+       //             break;
+
+        //        case FORWARD:
+         //           forwardAction();
+         //           break;
+
+         //       case BACKWARD:
+          //          backwardAction();
+           //         break;
+
+
+         //   }
+      //  }
+   // }
+
+    public class MyBroadcastReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String string = intent.getAction();
+
+            switch (string){
+                case PAUSE:
                     pausePlayAction();
-                    expandStatusBar();
-
-
-
                     break;
+
 
                 case FORWARD:
                     forwardAction();
                     break;
 
                 case BACKWARD:
-                backwardAction();
-                break;
+                    backwardAction();
+                    break;
+
             }
+
+
+
         }
     }
 
 
 
-    @Override
+
+            @Override
     public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.menu,menu);
     return true;
