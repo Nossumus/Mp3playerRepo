@@ -15,7 +15,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".MainActivity">
+            android:name=".MainActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="PAUSE"></action>
@@ -23,9 +24,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".MenuActivity"
-            android:label="@string/title_activity_menu" />
+
+        <activity android:name=".MenuActivity"
+                  android:label="@string/title_activity_menu"
+                  android:configChanges="orientation|keyboardHidden|screenSize"></activity>
 
         <receiver android:name=".BroadcastReciverNotif" />
     </application>

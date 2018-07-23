@@ -37,6 +37,7 @@ import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -380,7 +381,7 @@ public class MainActivity extends AppCompatActivity {
     public void seekBar() {
 
         seekBar.setMax(mediaPlayer.getDuration());
-        textView.setText(seekBar.getProgress() + "/" + seekBar.getMax());
+        //textView.setText(seekBar.getProgress() + "/" + seekBar.getMax());
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean input) {
@@ -403,6 +404,12 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onStartTrackingTouch(SeekBar seekBar) {
+                textView.setText(progressValue / 60 + ":" + progressValue % 60 + "/" + songLength);
+                if (progressValue % 60 < 10) {
+                    textView.setText(progressValue / 60 + ":0" + progressValue % 60 + "/" + songLength);
+                } else {
+                    textView.setText(progressValue / 60 + ":" + progressValue % 60 + "/" + songLength);
+                }
 
             }
 
@@ -419,17 +426,27 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void playCycle() {
+
+
         seekBar.setProgress(mediaPlayer.getCurrentPosition());
         looping();
         if (mediaPlayer.isPlaying()) {
             Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
+                    if (progressValue % 60 < 10) {
+                        remoteViews.setTextViewText(R.id.notificationTimer, progressValue / 60 + ":0" + progressValue % 60 + "/" + songLength);
+                        notificationManager.notify(notification_id, builder.build());
+                    } else {
+                        remoteViews.setTextViewText(R.id.notificationTimer, progressValue / 60 + ":" + progressValue % 60 + "/" + songLength);
+                        notificationManager.notify(notification_id, builder.build());
+                    }
+                    //notificationPlayer();
                     playCycle();
                 }
 
             };
-            handler.postDelayed(runnable, 1);
+            handler.postDelayed(runnable, 1000 );
 
         }
     }
@@ -488,24 +505,21 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
-
     public void notificationPlayer() {
 
         Intent pauseIntent = new Intent();
         pauseIntent.setAction(PAUSE);
-        pauseIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP  | Intent.FLAG_ACTIVITY_SINGLE_TOP );
-       // pauseIntent.putExtra(PAUSE,"value!");
+        pauseIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        // pauseIntent.putExtra(PAUSE,"value!");
 
 
         Intent forwardIntent = new Intent();
         forwardIntent.setAction(FORWARD);
-        forwardIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP  | Intent.FLAG_ACTIVITY_SINGLE_TOP );
+        forwardIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
         Intent backwardIntent = new Intent();
         backwardIntent.setAction(BACKWARD);
-        backwardIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP  | Intent.FLAG_ACTIVITY_SINGLE_TOP );
+        backwardIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
 
         if (isThereNotificationSet == false) {
@@ -516,17 +530,24 @@ public class MainActivity extends AppCompatActivity {
             pendingBackwardIntent = PendingIntent.getBroadcast(this, 0, backwardIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             remoteViews = new RemoteViews(getPackageName(), R.layout.notification_layout);
-            if(mediaPlayer.isPlaying()){
+            if (mediaPlayer.isPlaying()) {
                 remoteViews.setImageViewResource(R.id.notificationPausePlayButton, R.drawable.yellow_pause);
-            }else {
+            } else {
                 remoteViews.setImageViewResource(R.id.notificationPausePlayButton, R.drawable.play);
             }
-            remoteViews.setImageViewResource(R.id.imageView, R.drawable.cover);
+            remoteViews.setImageViewResource(R.id.imageView, R.drawable.ic_note);
             remoteViews.setTextViewText(R.id.nTitle, current_Title);
 
-            remoteViews.setOnClickPendingIntent(R.id.notificationPausePlayButton, pendingPlayPauseIntent);
-            remoteViews.setOnClickPendingIntent(R.id.notificationForwardButton, pendingForwardIntent);
-            remoteViews.setOnClickPendingIntent(R.id.notificationBackwardButton, pendingBackwardIntent);
+            if (progressValue % 60 < 10) {
+                remoteViews.setTextViewText(R.id.notificationTimer, progressValue / 60 + ":0" + progressValue % 60 + "/" + songLength);
+            } else {
+                remoteViews.setTextViewText(R.id.notificationTimer, progressValue / 60 + ":" + progressValue % 60 + "/" + songLength);
+            }
+
+
+                remoteViews.setOnClickPendingIntent(R.id.notificationPausePlayButton, pendingPlayPauseIntent);
+                remoteViews.setOnClickPendingIntent(R.id.notificationForwardButton, pendingForwardIntent);
+                remoteViews.setOnClickPendingIntent(R.id.notificationBackwardButton, pendingBackwardIntent);
 
 /*
             notification_id = 0;
@@ -536,23 +557,25 @@ public class MainActivity extends AppCompatActivity {
             pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 123, button_intent, 0);
             remoteViews.setOnClickPendingIntent(R.id.notificationPausePlayButton, pendingIntent);
 */
-           // to manage clicking on notification  Intent NotifIntent = new Intent(this, MainActivity.class);
-           // to manage clicking on notification NotifIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP  | Intent.FLAG_ACTIVITY_SINGLE_TOP );
+                // to manage clicking on notification  Intent NotifIntent = new Intent(this, MainActivity.class);
+                // to manage clicking on notification NotifIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP  | Intent.FLAG_ACTIVITY_SINGLE_TOP );
 
 
-            builder = new NotificationCompat.Builder(getApplicationContext(), "channel_1");
-           // to manage clicking on notification builder.setContentIntent(PendingIntent.getActivity(this, 0, NotifIntent, PendingIntent.FLAG_UPDATE_CURRENT));
-            builder.setContent(remoteViews);
-            builder.setSmallIcon(R.drawable.ic_notifiaction_status_bar);
-            builder.setTicker(current_Title);
-           // builder.setAutoCancel(false);
-           // builder.setOngoing(true);
-           // builder.addAction(new NotificationCompat.Action(R.drawable.play, "", PendingIntent.getActivity(this, 0, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT)));
+                builder = new NotificationCompat.Builder(getApplicationContext(), "channel_1");
+                // to manage clicking on notification builder.setContentIntent(PendingIntent.getActivity(this, 0, NotifIntent, PendingIntent.FLAG_UPDATE_CURRENT));
+                builder.setContent(remoteViews);
+                builder.setSmallIcon(R.drawable.ic_notifiaction_status_bar);
+                builder.setTicker(current_Title);
+                // builder.setAutoCancel(false);
+                // builder.setOngoing(true);
+                // builder.addAction(new NotificationCompat.Action(R.drawable.play, "", PendingIntent.getActivity(this, 0, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT)));
 
 
-            notificationManager.notify(notification_id, builder.build());
+                notificationManager.notify(notification_id, builder.build());
+            }
         }
-    }
+
+
 
 
 
@@ -572,6 +595,7 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+
 
         // find them, find them all!
         title = (TextView) findViewById(R.id.title_view);
@@ -613,33 +637,32 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-   // @Override
-   // protected void onNewIntent(Intent intent) {
-   //     processIntentAction(intent);
-   //     super.onNewIntent(intent);
-   // }
 
-  //  private void processIntentAction(Intent intent ) {
+    private Intent goToMenuActivity(){
 
-     //   if (intent.getAction() != null) {
-      //      switch (intent.getAction()) {
-       //         case PAUSE:
-                    //Toast.makeText(this, "PAUSE", Toast.LENGTH_SHORT).show();
-       //             pausePlayAction();
-       //             break;
-
-        //        case FORWARD:
-         //           forwardAction();
-         //           break;
-
-         //       case BACKWARD:
-          //          backwardAction();
-           //         break;
+        Intent goToMenuActivityIntent = new Intent(this, MenuActivity.class);
+        goToMenuActivityIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        return goToMenuActivityIntent;
+    }
 
 
-         //   }
-      //  }
-   // }
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu:
+                startActivity(goToMenuActivity());
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
 
     public class MyBroadcastReceiver extends BroadcastReceiver {
 
@@ -668,24 +691,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-
-
-            @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-    getMenuInflater().inflate(R.menu.menu,menu);
-    return true;
-    }
-
-   @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case R.id.menu:
-                startActivity(new Intent(this, MenuActivity.class));
-               return true;
-        }
-        return super.onOptionsItemSelected(item);
-   }
 }
 
 
