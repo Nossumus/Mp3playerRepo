@@ -26,9 +26,21 @@ ListView menuListView;
 ArrayAdapter<String> menuAdapter;
 Context context;
 
+    private Intent getGoToAboutActivity() {
+        Intent goToAboutActivityIntent = new Intent(this, AboutActivity.class);
+        goToAboutActivityIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        return goToAboutActivityIntent;
+    }
+
+
+
+    private Intent getGoToMainActivity() {
+        Intent goToMainActivityIntent = new Intent(this, MainActivity.class);
+        goToMainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        return goToMainActivityIntent;
+    }
+
 public void CreateMenuAdapter_and_setupMenuListener(){
-
-
 
     menuList = new ArrayList<>();
     menuList.add("About");
@@ -41,8 +53,9 @@ public void CreateMenuAdapter_and_setupMenuListener(){
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
             switch (i){
                 case 0: {
-                    Toast toast = Toast.makeText(context, "0", Toast.LENGTH_LONG);
-                    toast.show();
+                    //Toast toast = Toast.makeText(context, "0", Toast.LENGTH_LONG);
+                    //toast.show();
+                    startActivity(getGoToAboutActivity());
                     break;
                 }
 
@@ -59,13 +72,6 @@ public void CreateMenuAdapter_and_setupMenuListener(){
 
 }
 
-
-    private Intent getGoToMainActivity() {
-        Intent goToMainActivityIntent = new Intent(this, MainActivity.class);
-        goToMainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        return goToMainActivityIntent;
-
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

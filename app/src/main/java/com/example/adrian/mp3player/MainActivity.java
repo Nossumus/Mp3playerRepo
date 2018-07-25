@@ -12,6 +12,7 @@ import android.app.RemoteAction;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
@@ -22,18 +23,22 @@ import android.net.ConnectivityManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.provider.MediaStore;
 import android.provider.SyncStateContract;
 import android.service.notification.StatusBarNotification;
+import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.app.RemoteInput;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -96,12 +101,21 @@ public class MainActivity extends AppCompatActivity {
     boolean loop;
     boolean isThereLocationSet=false;
     boolean isThereNotificationSet = false;
-    int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 1;
-    int READ_STORAGE_PERMISSION_REQUEST_CODE = 1;
+    //int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0;
+    private int READ_STORAGE_PERMISSION_REQUEST_CODE = 1;
     private int notification_id;
+    public static final int PERMISSION_GRANTED = 0;
+    public static final int PERMISSION_DENIED = -1;
+    boolean permission;
+
+/**public void checkPermission(){
+    ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+            READ_STORAGE_PERMISSION_REQUEST_CODE);
+}
+*/
 
 
-
+/**
     public boolean checkPermissionForReadExternalStorage() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             int result = context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
@@ -109,16 +123,42 @@ public class MainActivity extends AppCompatActivity {
         }
         return false;
     }
+*/
 
-    public void requestPermissionForReadExternalStorage() throws Exception {
-        try {
-            ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    READ_STORAGE_PERMISSION_REQUEST_CODE);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
-    }
+   // public void requestPermissionForReadExternalStorage() throws Exception {
+    //    if (!checkPermissionForReadExternalStorage()) {
+           // do {
+        //        try {
+         ////           ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+           //                 READ_STORAGE_PERMISSION_REQUEST_CODE);
+                   /** new ActivityCompat.OnRequestPermissionsResultCallback() {
+                        @Override
+                        public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+                                if(grantResults[0] == PERMISSION_GRANTED){
+                                    permission = true;
+                                } if(grantResults[0] == PERMISSION_DENIED){
+                                    permission = false;
+                                }
+                            }
+                           /** if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                                permission = true;
+                            } else {
+                                permission = false;
+                            }
+                        };
+*/
+            //    } catch (Exception e) {
+            //        e.printStackTrace();
+             //       throw e;
+            //    }
+               // new ActivityCompat.OnRequestPermissionsResultCallback() {
+
+
+            //}while (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED);
+
+         //   }
+     //   }
+
 
     public void looping()
     {
@@ -130,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
             repeatButton.setBackgroundResource(R.drawable.repeat);
         }
     }
-
+/**
     public void checkPermissionForReadExternalStorageAlternative() {
 
 
@@ -163,6 +203,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }
+*/
 
 
     public void CreateAdapter_and_getLocation_also_setupOnClickListener() {
@@ -575,27 +616,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-
-
-
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        context = this;
-        loop = false;
-
-        if(!checkPermissionForReadExternalStorage())
-        {
-            try {
-                requestPermissionForReadExternalStorage();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
+public void findFeaturesAndSetButtons(){
 
         // find them, find them all!
         title = (TextView) findViewById(R.id.title_view);
@@ -613,21 +634,114 @@ public class MainActivity extends AppCompatActivity {
         // to see pause/play button and repeat button when app is starting
         pausePlayButton.setBackgroundResource(R.drawable.play);
         repeatButton.setBackgroundResource(R.drawable.repeat);
+    }
+/**
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+
+        try {
+            ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
+                    READ_STORAGE_PERMISSION_REQUEST_CODE);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+        if(grantResults[0] == PERMISSION_GRANTED){
+            permission = true;
+        } if(grantResults[0] == PERMISSION_DENIED){
+            permission = false;
+        }
+    }
+*/
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        context = this;
+        loop = false;
+
+        if (ContextCompat.checkSelfPermission(MainActivity.this,
+                Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(MainActivity.this, "You have already granted this permission!",
+                    Toast.LENGTH_SHORT).show();
+            findFeaturesAndSetButtons();
+            CreateAdapter_and_getLocation_also_setupOnClickListener();
+            setUpNotif();
+        } else {
+            requestStoragePermission();
+        }
+/**
+        if(permission){
+            findFeaturesAndSetButtons();
+            CreateAdapter_and_getLocation_also_setupOnClickListener();
+            setUpNotif();
+        } else {
+            closeApplication();
+        }
+        */
+// after requestStoragePermission there can't be any more instructions in onCreate because program will continue without permission
+    }
+
+    private void requestStoragePermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.READ_EXTERNAL_STORAGE)) {
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Permission needed")
+                    .setMessage("This permission is needed because of this and that")
+                    .setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ActivityCompat.requestPermissions(MainActivity.this,
+                                    new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, READ_STORAGE_PERMISSION_REQUEST_CODE);
+                        }
+                    })
+                    .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .create().show();
+
+        } else {
+            ActivityCompat.requestPermissions(this,
+                    new String[] {Manifest.permission.READ_EXTERNAL_STORAGE}, READ_STORAGE_PERMISSION_REQUEST_CODE);
+        }
+    }
+
+/**
+        if(!checkPermissionForReadExternalStorage())
+        {
+            try {
+                requestPermissionForReadExternalStorage();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        if(permission){
+            findFeaturesAndSetButtons();
+            CreateAdapter_and_getLocation_also_setupOnClickListener();
+            setUpNotif();
+        } if(!permission){
+            closeApplication();
+        }
+
+       // if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
+       //     closeApplication();
+        //}
+
+            //findFeaturesAndSetButtons();
+            //CreateAdapter_and_getLocation_also_setupOnClickListener();
 
 
-        CreateAdapter_and_getLocation_also_setupOnClickListener();
+        }
 
-        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationPlayer();
-       // processIntentAction(getIntent());
+*/
 
-        MyBroadcastReceiver broadcastReceiver = new MyBroadcastReceiver();
-
-        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-        filter.addAction(PAUSE);
-        filter.addAction(FORWARD);
-        filter.addAction(BACKWARD);
-        this.registerReceiver(broadcastReceiver, filter);
 
         //MyBroadcastReceiver forwardBroadcastReceiver = new MyBroadcastReceiver();
 
@@ -636,13 +750,27 @@ public class MainActivity extends AppCompatActivity {
        // this.registerReceiver(forwardBroadcastReceiver, forwardFilter);
 
 
-    }
+   // }
 
     private Intent goToMenuActivity(){
 
         Intent goToMenuActivityIntent = new Intent(this, MenuActivity.class);
         goToMenuActivityIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         return goToMenuActivityIntent;
+    }
+
+    public void setUpNotif(){
+        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationPlayer();
+        // processIntentAction(getIntent());
+
+        MyBroadcastReceiver broadcastReceiver = new MyBroadcastReceiver();
+
+        IntentFilter filter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
+        filter.addAction(PAUSE);
+        filter.addAction(FORWARD);
+        filter.addAction(BACKWARD);
+        this.registerReceiver(broadcastReceiver, filter);
     }
 
 
@@ -690,8 +818,30 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+    public void closeApplication() {
+        finish();
+        System.exit(0);
+        //moveTaskToBack(true);
+    }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if(requestCode == READ_STORAGE_PERMISSION_REQUEST_CODE){
+            if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                Toast.makeText(this,"Permission granted!", Toast.LENGTH_LONG).show();
+                findFeaturesAndSetButtons();
+                CreateAdapter_and_getLocation_also_setupOnClickListener();
+                setUpNotif();
+                //permission = true;
+            } else {
+                Toast.makeText(this,"Permission denied!", Toast.LENGTH_LONG).show();
+                closeApplication();
+               // permission = false;
+            }
+        }
+    }
 }
+
 
 
 
