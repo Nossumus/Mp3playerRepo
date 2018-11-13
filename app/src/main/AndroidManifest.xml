@@ -3,7 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.adrian.mp3player">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" tools:remove="android:maxSdkVersion"/>
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        tools:remove="android:maxSdkVersion" />
     <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
 
     <application
@@ -20,20 +22,24 @@
             android:configChanges="orientation|keyboardHidden|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <action android:name="PAUSE"></action>
+                <action android:name="PAUSE" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".MenuActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="@string/title_activity_menu" />
+        <activity
+            android:name=".AboutActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="About" />
 
-        <activity android:name=".MenuActivity"
-                  android:label="@string/title_activity_menu"
-                  android:configChanges="orientation|keyboardHidden|screenSize"></activity>
-        <activity android:name=".AboutActivity"
-            android:label="About"
-            android:configChanges="orientation|keyboardHidden|screenSize"/>
-
-        <receiver android:name=".BroadcastReciverNotif" />
+        <activity
+            android:name=".InstructionActivity"
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:label="Instruction manual" />
     </application>
 
 </manifest>

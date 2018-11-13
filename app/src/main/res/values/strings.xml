@@ -1,7 +1,17 @@
 <resources>
-    <string name="app_name">Mój prawie działający program</string>
+    <string name="app_name">Alpha Sound™</string>
     <string name="find">Find</string>
     <string name="title_activity_menu">Menu</string>
+
+    <string name="about_text">Alpha Sound™ was created by Adrian Majewski."\n""\n"Description:"\n"This app is a simple music player, which
+        does not require Internet connection to work. It is minimalistic,
+        there are no features like equalizer, etc. It simply loads any music
+        file from the external storage of your phone. It has also notification player so you can
+        change or pause song without unlocking your device."\n""\n"Have fun :)</string>
+
+    <string name="instruction_text"> The application was created for Android 5.1.1 (Lollipop) or higher.
+        If you try to run it on earlier version than Lollipop it will probably crush, or just won\'t work properly. But you
+    can try, choice is yours."\n""\n"Instruction:"\n"Use it like any other music player, there is nothing special about this one.</string>
 
     <!-- Strings related to Settings -->
 

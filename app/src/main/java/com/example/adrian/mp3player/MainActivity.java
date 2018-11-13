@@ -1,14 +1,9 @@
 package com.example.adrian.mp3player;
 
 import android.Manifest;
-import android.app.ActionBar;
-import android.app.Activity;
 import android.app.KeyguardManager;
-import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.RemoteAction;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -17,49 +12,31 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Handler;
-import android.preference.PreferenceManager;
-import android.provider.ContactsContract;
 import android.provider.MediaStore;
-import android.provider.SyncStateContract;
-import android.service.notification.StatusBarNotification;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
-import android.support.v4.app.RemoteInput;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Log;
-import android.util.TypedValue;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.RemoteViews;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 
 
@@ -68,7 +45,7 @@ import java.util.ArrayList;
 public class MainActivity extends AppCompatActivity {
 
     // declaration section
-    MediaPlayer mediaPlayer = new MediaPlayer();
+    final MediaPlayer mediaPlayer = new MediaPlayer();
     Handler handler = new Handler();
     TextView locationView;
     TextView title;
@@ -98,8 +75,8 @@ public class MainActivity extends AppCompatActivity {
     public static final String FORWARD = "com.example.adrian.mp3player.FORWARD";
     public static final String BACKWARD = "com.example.adrian.mp3player.BACKWARD";
     ImageButton repeatButton;
-    boolean loop;
-    boolean isThereLocationSet=false;
+    boolean loop = false;
+    boolean isThereLocationSet = false;
     boolean isThereNotificationSet = false;
     //int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0;
     private int READ_STORAGE_PERMISSION_REQUEST_CODE = 1;
@@ -107,103 +84,25 @@ public class MainActivity extends AppCompatActivity {
     public static final int PERMISSION_GRANTED = 0;
     public static final int PERMISSION_DENIED = -1;
     boolean permission;
+    boolean pause = false;
 
-/**public void checkPermission(){
-    ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-            READ_STORAGE_PERMISSION_REQUEST_CODE);
-}
-*/
-
-
-/**
-    public boolean checkPermissionForReadExternalStorage() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            int result = context.checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE);
-            return result == PackageManager.PERMISSION_GRANTED;
-        }
-        return false;
-    }
-*/
-
-   // public void requestPermissionForReadExternalStorage() throws Exception {
-    //    if (!checkPermissionForReadExternalStorage()) {
-           // do {
-        //        try {
-         ////           ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-           //                 READ_STORAGE_PERMISSION_REQUEST_CODE);
-                   /** new ActivityCompat.OnRequestPermissionsResultCallback() {
-                        @Override
-                        public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-                                if(grantResults[0] == PERMISSION_GRANTED){
-                                    permission = true;
-                                } if(grantResults[0] == PERMISSION_DENIED){
-                                    permission = false;
-                                }
-                            }
-                           /** if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                                permission = true;
-                            } else {
-                                permission = false;
-                            }
-                        };
-*/
-            //    } catch (Exception e) {
-            //        e.printStackTrace();
-             //       throw e;
-            //    }
-               // new ActivityCompat.OnRequestPermissionsResultCallback() {
-
-
-            //}while (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED);
-
-         //   }
-     //   }
 
 
     public void looping()
     {
-        if(loop){
+        if(!loop){
             mediaPlayer.setLooping(true);
             repeatButton.setBackgroundResource(R.drawable.ic_repeat_one_song);
+            loop = true;
+
         }else {
-            mediaPlayer.setLooping(false);
-            repeatButton.setBackgroundResource(R.drawable.repeat);
+                mediaPlayer.setLooping(false);
+                repeatButton.setBackgroundResource(R.drawable.repeat);
+                loop = false;
+
         }
     }
-/**
-    public void checkPermissionForReadExternalStorageAlternative() {
 
-
-            if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.READ_CONTACTS)
-                    != PackageManager.PERMISSION_GRANTED) {
-
-                // Permission is not granted
-                // Should we show an explanation?
-                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                        Manifest.permission.READ_EXTERNAL_STORAGE)) {
-
-                    // Show an explanation to the user *asynchronously* -- don't block
-                    // this thread waiting for the user's response! After the user
-                    // sees the explanation, try again to request the permission.
-
-                } else {
-
-                    // No explanation needed; request the permission
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                            MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-
-                    // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
-                    // app-defined int constant. The callback method gets the
-                    // result of the request.
-                }
-            } else {
-                // Permission has already been granted
-            }
-
-        }
-*/
 
 
     public void CreateAdapter_and_getLocation_also_setupOnClickListener() {
@@ -220,48 +119,116 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
 
+                if(!isThereLocationSet){
+                    // getting number of elements in array
+                    ArraySize = titleList.size() - 1;
+                    // setting "Pseudo-cursor"
+                    pseudoCursor = position;
+                    // getting location of desired file
+                    current_Location = locationList.get(pseudoCursor);
+                    // encode location
+                    // current_Location = Uri.encode(current_Location);
+                    // isThereLocationSet
+                    isThereLocationSet=true;
+                    // set title
+                    current_Title = titleList.get(pseudoCursor);
+                    // set title text view
+                    title.setText(current_Title);
+                    remoteViews.setTextViewText(R.id.nTitle, current_Title);
+                    // there will be error if current_Location have # sign inside
+                    //  String finalLocation = Uri.parse(current_Location).toString();
+                    // mediaPlayer = MediaPlayer.create(getApplicationContext(), Uri.parse(current_Location));
+                    try {
+                        mediaPlayer.setDataSource(current_Location);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        mediaPlayer.prepare();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                        @Override
+                        public void onPrepared(MediaPlayer mediaPlayer) {
+                            remoteViews.setImageViewResource(R.id.notificationPausePlayButton, R.drawable.yellow_pause);
+                            pausePlayButton.setBackgroundResource(R.drawable.yellow_pause);
+                            mediaPlayer.start();
+                        }
+                    });
+                    mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                        @Override
+                        public void onCompletion(MediaPlayer mediaPlayer) {
+                            if(mediaPlayer.isLooping()){
+                                remoteViews.setImageViewResource(R.id.notificationPausePlayButton, R.drawable.yellow_pause);
+                                pausePlayButton.setBackgroundResource(R.drawable.yellow_pause);
+                                mediaPlayer.start();
+                                seekBar();
+                                playCycle();
+                            }else{
+                                forwardAction();
+                            }
+                        }
+                    });
 
-                mediaPlayer.stop();
-                mediaPlayer.reset();
-                // getting number of elements in array
-                ArraySize = titleList.size() - 1;
-                // setting "Pseudo-cursor"
-                pseudoCursor = position;
-                // getting location of desired file
-                current_Location = locationList.get(pseudoCursor);
-                // encode location
-                current_Location = Uri.encode(current_Location);
-                // isThereLocationSet
-                isThereLocationSet=true;
-                // set title
-                current_Title = titleList.get(pseudoCursor);
-                // set title text view
-                title.setText(current_Title);
-                // there will be error if current_Location have # sign inside
-                mediaPlayer = MediaPlayer.create(getApplicationContext(), Uri.parse(current_Location));
-                pausePlayAction();
 
 
+                }else if(mediaPlayer.isPlaying() || pause ){
+
+                   // mediaPlayer.stop();
+                    mediaPlayer.reset();
+                    ArraySize = titleList.size() - 1;
+                    // setting "Pseudo-cursor"
+                    pseudoCursor = position;
+                    // getting location of desired file
+                    current_Location = locationList.get(pseudoCursor);
+                    // encode location
+                    // current_Location = Uri.encode(current_Location);
+                    // isThereLocationSet
+                    isThereLocationSet=true;
+                    // set title
+                    current_Title = titleList.get(pseudoCursor);
+                    // set title text view
+                    title.setText(current_Title);
+                    // there will be error if current_Location have # sign inside
+                    //  String finalLocation = Uri.parse(current_Location).toString();
+                    // mediaPlayer = MediaPlayer.create(getApplicationContext(), Uri.parse(current_Location));
+                    try {
+                        mediaPlayer.setDataSource(current_Location);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        mediaPlayer.prepare();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                        @Override
+                        public void onPrepared(MediaPlayer mediaPlayer) {
+                            remoteViews.setImageViewResource(R.id.notificationPausePlayButton, R.drawable.yellow_pause);
+                            pausePlayButton.setBackgroundResource(R.drawable.yellow_pause);
+                            mediaPlayer.start();
+                            seekBar();
+                            playCycle();
+
+                        }
+                });
 
 
             }
+        }
         });
+
+
 
         repeatButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(!isThereLocationSet){
+               /* if(!isThereLocationSet){
                     return;
-                }
-                if(mediaPlayer.isLooping()){
-                    loop=false;
-                    mediaPlayer.setLooping(false);
-                    repeatButton.setBackgroundResource(R.drawable.repeat);
-                }else if(!mediaPlayer.isLooping()){
-                    mediaPlayer.setLooping(true);
-                    loop=true;
-                    repeatButton.setBackgroundResource(R.drawable.ic_repeat_one_song);
-                }
+                }*/
+                looping();
 
             }
         });
@@ -303,8 +270,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
-
+/*
     public void pausePlayAction() {
         if(!isThereLocationSet){
             return;
@@ -316,10 +282,18 @@ public class MainActivity extends AppCompatActivity {
             pausePlayButton.setBackgroundResource(R.drawable.play);
             //remoteViews.setImageViewResource(R.id.notificationPausePlayButton, R.drawable.play);
         } else {
+            try {
+                mediaPlayer.prepare();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             mediaPlayer.start();
+
+
             notificationPlayer();
             pausePlayButton.setBackgroundResource(R.drawable.yellow_pause);
           //  remoteViews.setImageViewResource(R.id.notificationPausePlayButton, R.drawable.yellow_pause);
+          //  seekBar();
             seekBar();
             playCycle();
 
@@ -341,11 +315,31 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
+    */
+
+    public void pausePlayAction(){
+        if(!isThereLocationSet){
+            return;
+        }
+        if(mediaPlayer.isPlaying()){
+            remoteViews.setImageViewResource(R.id.notificationPausePlayButton, R.drawable.play);
+            pausePlayButton.setBackgroundResource(R.drawable.play);
+            pause = true;
+            mediaPlayer.pause();
+        } else {
+            remoteViews.setImageViewResource(R.id.notificationPausePlayButton, R.drawable.yellow_pause);
+            pausePlayButton.setBackgroundResource(R.drawable.yellow_pause);
+            mediaPlayer.start();
+            seekBar();
+            playCycle();
+        }
+    }
 
     public void forwardAction() {
 
-
-        mediaPlayer.stop();
+        remoteViews.setImageViewResource(R.id.notificationPausePlayButton, R.drawable.yellow_pause);
+        pausePlayButton.setBackgroundResource(R.drawable.yellow_pause);
+        //mediaPlayer.stop();
         mediaPlayer.reset();
 
         pseudoCursor++;
@@ -357,14 +351,15 @@ public class MainActivity extends AppCompatActivity {
         // get location
         current_Location = locationList.get(pseudoCursor);
         // encode location
-        current_Location = Uri.encode(current_Location);
+        //current_Location = Uri.encode(current_Location);
         // set title
         current_Title = titleList.get(pseudoCursor);
-       notificationPlayer();
+        remoteViews.setTextViewText(R.id.nTitle, current_Title);
+        //notificationPlayer();
        // remoteViews.setTextViewText(R.id.nTitle, current_Title);
 
         try {
-            mediaPlayer.setDataSource(this, Uri.parse(current_Location));
+            mediaPlayer.setDataSource(current_Location);
             // set title text view
             title.setText(current_Title);
         } catch (IOException e) {
@@ -376,14 +371,36 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        // run play/pause action
-        pausePlayAction();
+        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mediaPlayer) {
+                mediaPlayer.start();
+                seekBar();
+                playCycle();
+            }
+        });
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                if(mediaPlayer.isLooping()){
+                    mediaPlayer.start();
+                    seekBar();
+                    playCycle();
+                }else{
+                    forwardAction();
+                }
+            }
+        });
+
+
 
     }
 
     public void backwardAction() {
 
-        mediaPlayer.stop();
+        remoteViews.setImageViewResource(R.id.notificationPausePlayButton, R.drawable.yellow_pause);
+        pausePlayButton.setBackgroundResource(R.drawable.yellow_pause);
+        //mediaPlayer.stop();
         mediaPlayer.reset();
 
         pseudoCursor--;
@@ -395,14 +412,15 @@ public class MainActivity extends AppCompatActivity {
         // get location
         current_Location = locationList.get(pseudoCursor);
         // encode location
-        current_Location = Uri.encode(current_Location);
+        //current_Location = Uri.encode(current_Location);
         // set title
         current_Title = titleList.get(pseudoCursor);
-       notificationPlayer();
+        remoteViews.setTextViewText(R.id.nTitle, current_Title);
+        //notificationPlayer();
         //remoteViews.setTextViewText(R.id.nTitle, current_Title);
         // set data source
         try {
-            mediaPlayer.setDataSource(this, Uri.parse(current_Location));
+            mediaPlayer.setDataSource(current_Location);
             // set title text view
             title.setText(current_Title);
         } catch (IOException e) {
@@ -414,8 +432,26 @@ public class MainActivity extends AppCompatActivity {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        //run play/pause action
-        pausePlayAction();
+        mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mediaPlayer) {
+                mediaPlayer.start();
+                seekBar();
+                playCycle();
+            }
+        });
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                if(mediaPlayer.isLooping()){
+                    mediaPlayer.start();
+                    seekBar();
+                    playCycle();
+                }else{
+                    forwardAction();
+                }
+            }
+        });
 
     }
 
@@ -470,7 +506,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         seekBar.setProgress(mediaPlayer.getCurrentPosition());
-        looping();
+        //looping();
         if (mediaPlayer.isPlaying()) {
             Runnable runnable = new Runnable() {
                 @Override
@@ -517,6 +553,9 @@ public class MainActivity extends AppCompatActivity {
 
             } while (songCursor.moveToNext());
 
+        }
+        if(songCursor != null) {
+            songCursor.close();
         }
     }
 
@@ -590,14 +629,9 @@ public class MainActivity extends AppCompatActivity {
                 remoteViews.setOnClickPendingIntent(R.id.notificationForwardButton, pendingForwardIntent);
                 remoteViews.setOnClickPendingIntent(R.id.notificationBackwardButton, pendingBackwardIntent);
 
-/*
-            notification_id = 0;
-            Intent button_intent = new Intent("Button clicked!");
-            button_intent.putExtra("id", notification_id);
 
-            pendingIntent = PendingIntent.getBroadcast(getApplicationContext(), 123, button_intent, 0);
-            remoteViews.setOnClickPendingIntent(R.id.notificationPausePlayButton, pendingIntent);
-*/
+
+
                 // to manage clicking on notification  Intent NotifIntent = new Intent(this, MainActivity.class);
                 // to manage clicking on notification NotifIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP  | Intent.FLAG_ACTIVITY_SINGLE_TOP );
 
@@ -607,9 +641,7 @@ public class MainActivity extends AppCompatActivity {
                 builder.setContent(remoteViews);
                 builder.setSmallIcon(R.drawable.ic_notifiaction_status_bar);
                 builder.setTicker(current_Title);
-                // builder.setAutoCancel(false);
-                // builder.setOngoing(true);
-                // builder.addAction(new NotificationCompat.Action(R.drawable.play, "", PendingIntent.getActivity(this, 0, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT)));
+
 
 
                 notificationManager.notify(notification_id, builder.build());
@@ -635,24 +667,7 @@ public void findFeaturesAndSetButtons(){
         pausePlayButton.setBackgroundResource(R.drawable.play);
         repeatButton.setBackgroundResource(R.drawable.repeat);
     }
-/**
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
 
-        try {
-            ActivityCompat.requestPermissions((Activity) context, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},
-                    READ_STORAGE_PERMISSION_REQUEST_CODE);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
-        if(grantResults[0] == PERMISSION_GRANTED){
-            permission = true;
-        } if(grantResults[0] == PERMISSION_DENIED){
-            permission = false;
-        }
-    }
-*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -672,16 +687,9 @@ public void findFeaturesAndSetButtons(){
         } else {
             requestStoragePermission();
         }
-/**
-        if(permission){
-            findFeaturesAndSetButtons();
-            CreateAdapter_and_getLocation_also_setupOnClickListener();
-            setUpNotif();
-        } else {
-            closeApplication();
-        }
-        */
-// after requestStoragePermission there can't be any more instructions in onCreate because program will continue without permission
+
+// after requestStoragePermission there can't be any more instructions in onCreate because program will continue without permission which will crush in result
+
     }
 
     private void requestStoragePermission() {
@@ -702,6 +710,8 @@ public void findFeaturesAndSetButtons(){
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             dialog.dismiss();
+                            Toast.makeText(context,"Closing an App!",Toast.LENGTH_LONG).show();
+                            closeApplication();
                         }
                     })
                     .create().show();
@@ -712,45 +722,7 @@ public void findFeaturesAndSetButtons(){
         }
     }
 
-/**
-        if(!checkPermissionForReadExternalStorage())
-        {
-            try {
-                requestPermissionForReadExternalStorage();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
 
-        if(permission){
-            findFeaturesAndSetButtons();
-            CreateAdapter_and_getLocation_also_setupOnClickListener();
-            setUpNotif();
-        } if(!permission){
-            closeApplication();
-        }
-
-       // if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED){
-       //     closeApplication();
-        //}
-
-            //findFeaturesAndSetButtons();
-            //CreateAdapter_and_getLocation_also_setupOnClickListener();
-
-
-        }
-
-*/
-
-
-        //MyBroadcastReceiver forwardBroadcastReceiver = new MyBroadcastReceiver();
-
-       // IntentFilter forwardFilter = new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION);
-       // forwardFilter.addAction(PAUSE);
-       // this.registerReceiver(forwardBroadcastReceiver, forwardFilter);
-
-
-   // }
 
     private Intent goToMenuActivity(){
 
@@ -814,14 +786,13 @@ public void findFeaturesAndSetButtons(){
 
             }
 
-
-
         }
     }
+
+
     public void closeApplication() {
         finish();
         System.exit(0);
-        //moveTaskToBack(true);
     }
 
     @Override
@@ -832,11 +803,10 @@ public void findFeaturesAndSetButtons(){
                 findFeaturesAndSetButtons();
                 CreateAdapter_and_getLocation_also_setupOnClickListener();
                 setUpNotif();
-                //permission = true;
             } else {
                 Toast.makeText(this,"Permission denied!", Toast.LENGTH_LONG).show();
                 closeApplication();
-               // permission = false;
+
             }
         }
     }

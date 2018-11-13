@@ -26,15 +26,21 @@ ListView menuListView;
 ArrayAdapter<String> menuAdapter;
 Context context;
 
-    private Intent getGoToAboutActivity() {
+    private Intent GoToAboutActivity() {
         Intent goToAboutActivityIntent = new Intent(this, AboutActivity.class);
         goToAboutActivityIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         return goToAboutActivityIntent;
     }
 
+    private Intent GoToInstructionActivity() {
+        Intent goToInstructionActivityIntent = new Intent(this, InstructionActivity.class);
+        goToInstructionActivityIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        return goToInstructionActivityIntent;
+    }
 
 
-    private Intent getGoToMainActivity() {
+
+    private Intent GoToMainActivity() {
         Intent goToMainActivityIntent = new Intent(this, MainActivity.class);
         goToMainActivityIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
         return goToMainActivityIntent;
@@ -53,15 +59,12 @@ public void CreateMenuAdapter_and_setupMenuListener(){
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
             switch (i){
                 case 0: {
-                    //Toast toast = Toast.makeText(context, "0", Toast.LENGTH_LONG);
-                    //toast.show();
-                    startActivity(getGoToAboutActivity());
+                    startActivity(GoToAboutActivity());
                     break;
                 }
 
                 case 1: {
-                    Toast toast = Toast.makeText(context, "1", Toast.LENGTH_LONG);
-                    toast.show();
+                    startActivity(GoToInstructionActivity());
                     break;
                 }
 
@@ -96,7 +99,7 @@ public void CreateMenuAdapter_and_setupMenuListener(){
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.back_to_main_activity_button:
-                startActivity(getGoToMainActivity());
+                startActivity(GoToMainActivity());
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
